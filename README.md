@@ -1,14 +1,25 @@
-# Project
+# Kiota JSON Serialization Library for PHP
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+[![Build Status](https://travis-ci.org/microsoft/kiota-serialization-json-php.svg?branch=main)](https://travis-ci.org/microsoft/kiota-serialization-json-php)
+[![Latest Stable Version](https://poser.pugx.org/microsoft/kiota-serialization-json/version)](https://packagist.org/packages/microsoft/kiota-serialization-json)
 
-As the maintainer of this project, please make a few updates:
+The Json Serialization Library for PHP is the PHP JSON serialization library implementation.
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+A [Kiota](https://github.com/microsoft/kiota) generated project will need a reference to a json serialization package to handle json payloads from an API endpoint.
+
+Read more about Kiota [here](https://github.com/microsoft/kiota/blob/main/README.md).
+
+## Using the Kiota JSON Serialization Library for PHP
+
+run `composer require microsoft/kiota-serialization-json` or add the following to your `composer.json` file:
+
+```Shell
+{
+    "require": {
+        "microsoft/kiota-serialization-json": "^0.1.0"
+    }
+}
+```
 
 ## Contributing
 
