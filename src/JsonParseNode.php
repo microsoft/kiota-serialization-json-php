@@ -40,7 +40,7 @@ class JsonParseNode implements ParseNode
      * @inheritDoc
      */
     public function getChildNode(string $identifier): ?ParseNode {
-        if ($this->jsonNode === null || $this->jsonNode[$identifier] === null) {
+        if ($this->jsonNode === null || !($this->jsonNode[$identifier] ?? null)) {
             return null;
         }
         return new self($this->jsonNode[$identifier] ?? null);
