@@ -165,17 +165,18 @@ class JsonSerializationWriter implements SerializationWriter
             if ($this->getOnStartObjectSerialization() !== null) {
                 $this->getOnStartObjectSerialization()($value, $this);
             }
-            if ($value !== null)
+            if ($value !== null) {
                 $value->serialize($this);
+            }
             foreach ($additionalValuesToMerge as $additionalValueToMerge) {
-                if($this->getOnBeforeObjectSerialization() !== null) {
+                if ($this->getOnBeforeObjectSerialization() !== null) {
                     call_user_func($this->getOnBeforeObjectSerialization(), $additionalValueToMerge, $this);
                 }
-                if($this->getOnStartObjectSerialization() !== null) {
+                if ($this->getOnStartObjectSerialization() !== null) {
                     call_user_func($this->getOnStartObjectSerialization(), $additionalValueToMerge, $this);
                 }
                 $additionalValueToMerge->serialize($this);
-                if($this->getOnAfterObjectSerialization() !== null) {
+                if ($this->getOnAfterObjectSerialization() !== null) {
                     call_user_func($this->getOnAfterObjectSerialization(), $additionalValueToMerge);
                 }
             }
