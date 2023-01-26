@@ -128,7 +128,7 @@ class JsonParseNode implements ParseNode
         $additionalData = [];
         if (is_a($result, AdditionalDataHolder::class)) {
             $isAdditionalDataHolder = true;
-            $additionalData = $result->getAdditionalData();
+            $additionalData = $result->getAdditionalData() ?? [];
         }
         foreach ($this->jsonNode as $key => $value){
             $deserializer = $fieldDeserializers[$key] ?? null;
