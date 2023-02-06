@@ -190,6 +190,8 @@ class JsonSerializationWriter implements SerializationWriter
         }
         if ($key !== null && $value !== null) {
             $this->writer [] = self::PROPERTY_SEPARATOR;
+            $this->writer []= '0';
+            array_pop($this->writer);
         }
     }
 
