@@ -45,7 +45,7 @@ class JsonSerializationWriter implements SerializationWriter
      */
     public function writeStringValue(?string $key, ?string $value): void {
 
-        $propertyValue = $value !== null ? '"'.addcslashes($value, "\\\r\n\"").'"' : '';
+        $propertyValue = $value !== null ? '"'.addcslashes($value, "\\\r\n\"\t").'"' : '';
         if ($value !== null) {
             if (!empty($key)) {
                 $this->writePropertyName($key);
