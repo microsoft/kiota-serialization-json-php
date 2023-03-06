@@ -201,8 +201,8 @@ class JsonSerializationWriterTest extends TestCase
      */
     public function testWriteStringValue(): void {
         $this->jsonSerializationWriter = new JsonSerializationWriter();
-        $this->jsonSerializationWriter->writeAnyValue("statement", "This is a string");
-        $expected = '"statement":"This is a string"';
+        $this->jsonSerializationWriter->writeAnyValue("statement", "This is a string\n\r\t");
+        $expected = '"statement":"This is a string\\n\\r\\t"';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
     }
