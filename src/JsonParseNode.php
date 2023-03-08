@@ -75,7 +75,7 @@ class JsonParseNode implements ParseNode
     }
 
     /**
-     * @return array<Parsable|null>|null
+     * @inheritDoc
      * @throws Exception
      */
     public function getCollectionOfObjectValues(array $type): ?array {
@@ -160,7 +160,7 @@ class JsonParseNode implements ParseNode
     }
 
     /**
-     * @return array<Enum|null>|null
+     * @inheritDoc
      */
     public function getCollectionOfEnumValues(string $targetClass): ?array {
         if ($this->jsonNode === null) {
@@ -281,6 +281,9 @@ class JsonParseNode implements ParseNode
         return ($this->jsonNode !== null) ? new DateInterval($this->jsonNode) : null;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getBinaryContent(): ?StreamInterface {
         return ($this->jsonNode !== null) ? Utils::streamFor($this->jsonNode) : null;
     }
