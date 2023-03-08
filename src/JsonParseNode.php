@@ -103,7 +103,6 @@ class JsonParseNode implements ParseNode
         if (!is_callable($type, true, $callableString)) {
             throw new \RuntimeException('Undefined method '. $type[1]);
         }
-        /** @var Parsable $result */
         $result = $callableString($this);
         if($this->getOnBeforeAssignFieldValues() !== null) {
             $this->getOnBeforeAssignFieldValues()($result);
