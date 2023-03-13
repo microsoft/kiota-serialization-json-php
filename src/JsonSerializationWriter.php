@@ -37,7 +37,7 @@ class JsonSerializationWriter implements SerializationWriter
     private $onBeforeObjectSerialization;
 
     private function writePropertyName(string $propertyName): void {
-        $this->writer []= "\"{$propertyName}\":";
+        $this->writer []= "\"$propertyName\":";
     }
 
     /**
@@ -114,7 +114,7 @@ class JsonSerializationWriter implements SerializationWriter
                 $this->writePropertyName($key);
             }
             $valueString = (string)$value;
-            $this->writePropertyValue($key, "\"{$valueString}\"");
+            $this->writePropertyValue($key, "\"$valueString\"");
         }
     }
 
@@ -310,43 +310,62 @@ class JsonSerializationWriter implements SerializationWriter
         $type = get_debug_type($value);
         switch ($type) {
             case 'float':
-                $this->writeFloatValue($key, $value);
+                if (is_float($value))
+                    $this->writeFloatValue($key, $value);
                 break;
             case 'string':
+                if (is_string($value))
                 $this->writeStringValue($key, $value);
                 break;
             case 'int':
-                $this->writeIntegerValue($key, $value);
+                if (is_int($value))
+                    $this->writeIntegerValue($key, $value);
                 break;
             case 'bool':
-                $this->writeBooleanValue($key, $value);
+                if (is_bool($value)) {
+                    $this->writeBooleanValue($key, $value);
+                }
                 break;
             case 'null':
-                $this->writeNullValue($key);
+                if (is_null($value)) {
+                    $this->writeNullValue($key);
+                }
                 break;
             case Date::class:
-                $this->writeDateValue($key, $value);
+                if ($value instanceof Date) {
+                    $this->writeDateValue($key, $value);
+                }
                 break;
             case Time::class:
-                $this->writeTimeValue($key, $value);
+                if ($value instanceof Time) {
+                    $this->writeTimeValue($key, $value);
+                }
                 break;
             case DateTime::class:
-                $this->writeDateTimeValue($key, $value);
+                if ($value instanceof DateTime) {
+                    $this->writeDateTimeValue($key, $value);
+                }
                 break;
             case DateInterval::class:
-                $this->writeDateIntervalValue($key, $value);
+                if ($value instanceof DateInterval) {
+                    $this->writeDateIntervalValue($key, $value);
+                }
                 break;
             case 'stdClass':
                 $this->writeNonParsableObjectValue($key, (object)$value);
                 break;
             case 'array':
-                $keys = array_filter(array_keys($value), 'is_string');
+                if (is_array($value)) {
+                    $keys = array_filter(array_keys($value), 'is_string');
+                } else {
+                    $keys = [];
+                }
                 // If there are string keys then that means this is a single
                 // object we are dealing with
                 // otherwise it is a collection of objects.
                 if (!empty($keys)){
                     $this->writeNonParsableObjectValue($key, (object)$value);
-                } else if (!empty($value)){
+                } else if (is_array($value) && !empty($value)){
                     if (is_subclass_of($value[0], Parsable::class)) {
                         $this->writeCollectionOfObjectValues($key, $value);
                     } else{
@@ -355,16 +374,16 @@ class JsonSerializationWriter implements SerializationWriter
                 }
                 break;
             default:
-                if (is_a($value, Parsable::class)) {
+                if ($value instanceof Parsable) {
                     $this->writeObjectValue($key, $value);
-                } else if(is_subclass_of($type, Enum::class)){
+                } else if(is_object($value) && is_subclass_of($value, Enum::class)){
                     $this->writeEnumValue($key, $value);
-                } else if(is_subclass_of($type, DateTimeInterface::class)){
+                } else if(is_object($value) && is_subclass_of($value, DateTime::class)){
                     $this->writeDateTimeValue($key, $value);
-                } else if(is_a($value, StreamInterface::class) || is_subclass_of($type, StreamInterface::class)) {
+                } else if(is_object($value) && (is_a($value, StreamInterface::class) || is_subclass_of($value, StreamInterface::class))) {
                     $this->writeStringValue($key, $value->getContents());
                 } else {
-                   throw new RuntimeException("Could not serialize the object of type {$type}");
+                   throw new RuntimeException("Could not serialize the object of type $type");
                 }
                 break;
         }
@@ -443,7 +462,7 @@ class JsonSerializationWriter implements SerializationWriter
             if (!empty($key)) {
                 $this->writePropertyName($key);
             }
-            $val = "\"{$value}\"";
+            $val = "\"$value\"";
             $this->writePropertyValue($key, $val);
         }
     }
@@ -454,7 +473,7 @@ class JsonSerializationWriter implements SerializationWriter
                 $this->writePropertyName($key);
             }
             $res = "P{$value->y}Y{$value->y}M{$value->d}DT{$value->h}H{$value->i}M{$value->s}S";
-            $val = "\"{$res}\"" ;
+            $val = "\"$res\"" ;
             $this->writePropertyValue($key, $val);
         }
     }
