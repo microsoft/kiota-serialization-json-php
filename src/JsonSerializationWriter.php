@@ -6,13 +6,13 @@ use DateInterval;
 use DateTime;
 use DateTimeInterface;
 use GuzzleHttp\Psr7\Utils;
+use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Enum;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
 use Psr\Http\Message\StreamInterface;
-use RuntimeException;
 use stdClass;
 
 /**
@@ -331,28 +331,28 @@ class JsonSerializationWriter implements SerializationWriter
             // If there are string keys then that means this is a single
             // object we are dealing with
             // otherwise it is a collection of objects.
-            if (!empty($keys)){
+            if (!empty($keys)) {
                 $this->writeNonParsableObjectValue($key, (object)$value);
-            } elseif (count($value) > 0){
+            } elseif (!empty($value)) {
                 if (is_subclass_of($value[0], Parsable::class)) {
                     $this->writeCollectionOfObjectValues($key, $value);
                 } elseif ($value[0] instanceof Enum) {
                     $this->writeCollectionOfObjectValues($key, $value);
-                }else{
+                } else {
                     $this->writeCollectionOfPrimitiveValues($key, $value);
                 }
             }
-        } elseif ($value instanceof \stdClass) {
+        } elseif ($value instanceof stdClass) {
             $this->writeNonParsableObjectValue($key, $value);
         } elseif ($value instanceof Parsable) {
                 $this->writeObjectValue($key, $value);
-        } elseif($value instanceof Enum) {
+        } elseif ($value instanceof Enum) {
                 $this->writeEnumValue($key, $value);
         } elseif ($value instanceof StreamInterface) {
             $this->writeStringValue($key, $value->getContents());
         } else {
             $type = gettype($value);
-            throw new RuntimeException("Could not serialize the object of type $type ");
+            throw new InvalidArgumentException("Could not serialize the object of type $type ");
         }
     }
 

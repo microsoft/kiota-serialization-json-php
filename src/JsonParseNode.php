@@ -41,10 +41,10 @@ class JsonParseNode implements ParseNode
      * @inheritDoc
      */
     public function getChildNode(string $identifier): ?ParseNode {
-        if ($this->jsonNode === null || !(is_array($this->jsonNode) && ($this->jsonNode[$identifier] ?? null) !== null)) {
+        if ((!is_array($this->jsonNode)) || (($this->jsonNode[$identifier] ?? null) === null)) {
             return null;
         }
-        return new self($this->jsonNode[$identifier] ?? null);
+        return new self($this->jsonNode[$identifier]);
     }
 
     /**
@@ -102,7 +102,7 @@ class JsonParseNode implements ParseNode
             throw new InvalidArgumentException("Invalid type $type[0] provided.");
         }
         if (!is_callable($type, true, $callableString)) {
-            throw new RuntimeException('Undefined method '. $type[1]);
+            throw new InvalidArgumentException('Undefined method '. $type[1]);
         }
         /** @var Parsable $result */
         $result = $callableString($this);
@@ -131,15 +131,16 @@ class JsonParseNode implements ParseNode
             $isAdditionalDataHolder = true;
             $additionalData = $result->getAdditionalData() ?? [];
         }
-        if (is_array($this->jsonNode))
-        foreach ($this->jsonNode as $key => $value){
-            $deserializer = $fieldDeserializers[$key] ?? null;
+        if (is_array($this->jsonNode)) {
+            foreach ($this->jsonNode as $key => $value) {
+                $deserializer = $fieldDeserializers[$key] ?? null;
 
-            if ($deserializer !== null){
-                $deserializer(new JsonParseNode($value));
-            } else {
-                $key = (string)$key;
-                $additionalData[$key] = $value;
+                if ($deserializer !== null) {
+                    $deserializer(new JsonParseNode($value));
+                } else {
+                    $key                  = (string)$key;
+                    $additionalData[$key] = $value;
+                }
             }
         }
 
@@ -208,7 +209,7 @@ class JsonParseNode implements ParseNode
      * @throws Exception
      */
     public function getCollectionOfPrimitiveValues(?string $typeName = null): ?array {
-        if (!is_array($this->jsonNode)){
+        if (!is_array($this->jsonNode)) {
             return null;
         }
         return array_map(static function ($x) use ($typeName) {
