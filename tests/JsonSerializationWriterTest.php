@@ -2,6 +2,8 @@
 
 namespace Microsoft\Kiota\Serialization\Tests;
 
+use DateInterval;
+use GuzzleHttp\Psr7\Utils;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
@@ -205,5 +207,28 @@ class JsonSerializationWriterTest extends TestCase
         $expected = '"statement":"This is a string\\n\\r\\t"';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testWriteDateIntervalValue(): void
+    {
+        $this->jsonSerializationWriter = new JsonSerializationWriter();
+        $interval = new DateInterval('P300DT100S');
+        $this->jsonSerializationWriter->writeAnyValue('timeTaken', $interval);
+
+        $content = $this->jsonSerializationWriter->getSerializedContent();
+        $this->assertEquals('"timeTaken":"P0Y0M300DT0H0M100S"', $content->getContents());
+    }
+
+    public function testWriteBinaryContentValue(): void
+    {
+        $this->jsonSerializationWriter = new JsonSerializationWriter();
+        $stream = Utils::streamFor("Hello world!!!\r\t\t\t\f\e\n");
+        $this->jsonSerializationWriter->writeAnyValue('body', $stream);
+
+        $content = $this->jsonSerializationWriter->getSerializedContent();
+        $this->assertEquals('"body":"Hello world!!!\r\t\t\t\n"', $content->getContents());
     }
 }
