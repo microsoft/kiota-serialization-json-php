@@ -121,10 +121,9 @@ class JsonSerializationWriter implements SerializationWriter
 
     public function writeBinaryContent(?string $key, ?StreamInterface $value): void {
         if ($value !== null) {
-            if (!empty($key)) {
-                $this->writePropertyName($key);
-            }
-            $this->writePropertyValue($key, "\"{$value->getContents()}\"");
+            $this->writeStringValue($key, $value->getContents());
+        } else {
+            $this->writeNullValue($key);
         }
     }
 
@@ -334,10 +333,10 @@ class JsonSerializationWriter implements SerializationWriter
             if (!empty($keys)) {
                 $this->writeNonParsableObjectValue($key, (object)$value);
             } elseif (!empty($value)) {
-                if (is_subclass_of($value[0], Parsable::class)) {
+                if ($value[0] instanceof Parsable) {
                     $this->writeCollectionOfObjectValues($key, $value);
                 } elseif ($value[0] instanceof Enum) {
-                    $this->writeCollectionOfObjectValues($key, $value);
+                    $this->writeCollectionOfEnumValues($key, $value);
                 } else {
                     $this->writeCollectionOfPrimitiveValues($key, $value);
                 }
