@@ -14,6 +14,7 @@ use Microsoft\Kiota\Abstractions\Serialization\ParseNode;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
 
 /**
  * @method onBeforeAssignFieldValues(Parsable $result)
@@ -40,17 +41,17 @@ class JsonParseNode implements ParseNode
      * @inheritDoc
      */
     public function getChildNode(string $identifier): ?ParseNode {
-        if ($this->jsonNode === null || !($this->jsonNode[$identifier] ?? null)) {
+        if ((!is_array($this->jsonNode)) || (($this->jsonNode[$identifier] ?? null) === null)) {
             return null;
         }
-        return new self($this->jsonNode[$identifier] ?? null);
+        return new self($this->jsonNode[$identifier]);
     }
 
     /**
      * @inheritDoc
      */
     public function getStringValue(): ?string {
-        return $this->jsonNode !== null ? addcslashes($this->jsonNode, "\\\r\n") : null;
+        return $this->jsonNode !== null ? addcslashes(strval($this->jsonNode), "\\\r\n") : null;
     }
 
     /**
@@ -64,14 +65,14 @@ class JsonParseNode implements ParseNode
      * @inheritDoc
      */
     public function getIntegerValue(): ?int {
-        return $this->jsonNode !== null ? (int)$this->jsonNode : null;
+        return $this->jsonNode !== null ? intval($this->jsonNode) : null;
     }
 
     /**
      * @inheritDoc
      */
     public function getFloatValue(): ?float {
-        return $this->jsonNode !== null ? (float)$this->jsonNode : null;
+        return $this->jsonNode !== null ? floatval($this->jsonNode) : null;
     }
 
     /**
@@ -79,7 +80,7 @@ class JsonParseNode implements ParseNode
      * @throws Exception
      */
     public function getCollectionOfObjectValues(array $type): ?array {
-        if ($this->jsonNode === null) {
+        if (!is_array($this->jsonNode)) {
             return null;
         }
         return array_map(static function ($val) use($type) {
@@ -101,7 +102,7 @@ class JsonParseNode implements ParseNode
             throw new InvalidArgumentException("Invalid type $type[0] provided.");
         }
         if (!is_callable($type, true, $callableString)) {
-            throw new \RuntimeException('Undefined method '. $type[1]);
+            throw new InvalidArgumentException('Undefined method '. $type[1]);
         }
         /** @var Parsable $result */
         $result = $callableString($this);
@@ -130,14 +131,16 @@ class JsonParseNode implements ParseNode
             $isAdditionalDataHolder = true;
             $additionalData = $result->getAdditionalData() ?? [];
         }
-        foreach ($this->jsonNode as $key => $value){
-            $deserializer = $fieldDeserializers[$key] ?? null;
+        if (is_array($this->jsonNode)) {
+            foreach ($this->jsonNode as $key => $value) {
+                $deserializer = $fieldDeserializers[$key] ?? null;
 
-            if ($deserializer !== null){
-                $deserializer(new JsonParseNode($value));
-            } else {
-                $key = (string)$key;
-                $additionalData[$key] = $value;
+                if ($deserializer !== null) {
+                    $deserializer(new JsonParseNode($value));
+                } else {
+                    $key                  = (string)$key;
+                    $additionalData[$key] = $value;
+                }
             }
         }
 
@@ -163,7 +166,7 @@ class JsonParseNode implements ParseNode
      * @return array<Enum|null>|null
      */
     public function getCollectionOfEnumValues(string $targetClass): ?array {
-        if ($this->jsonNode === null) {
+        if (!is_array($this->jsonNode)) {
             return null;
         }
         return array_map(static function ($val) use($targetClass) {
@@ -206,7 +209,7 @@ class JsonParseNode implements ParseNode
      * @throws Exception
      */
     public function getCollectionOfPrimitiveValues(?string $typeName = null): ?array {
-        if ($this->jsonNode === null){
+        if (!is_array($this->jsonNode)) {
             return null;
         }
         return array_map(static function ($x) use ($typeName) {
@@ -232,7 +235,7 @@ class JsonParseNode implements ParseNode
             case 'null':
                 return null;
             case 'array':
-                return $this->getCollectionOfPrimitiveValues(null);
+                return $this->getCollectionOfPrimitiveValues();
             case Date::class:
                 return $this->getDateValue();
             case Time::class:
@@ -254,7 +257,7 @@ class JsonParseNode implements ParseNode
      * @throws Exception
      */
     public function getDateValue(): ?Date {
-        return ($this->jsonNode !== null) ? new Date($this->jsonNode) : null;
+        return ($this->jsonNode !== null) ? new Date(strval($this->jsonNode)) : null;
     }
 
     /**
@@ -262,7 +265,7 @@ class JsonParseNode implements ParseNode
      * @throws Exception
      */
     public function getTimeValue(): ?Time {
-        return ($this->jsonNode !== null) ? new Time($this->jsonNode) : null;
+        return ($this->jsonNode !== null) ? new Time(strval($this->jsonNode)) : null;
     }
 
     /**
@@ -270,7 +273,7 @@ class JsonParseNode implements ParseNode
      * @throws Exception
      */
     public function getDateTimeValue(): ?DateTime {
-        return ($this->jsonNode !== null) ? new DateTime($this->jsonNode) : null;
+        return ($this->jsonNode !== null) ? new DateTime(strval($this->jsonNode)) : null;
     }
 
     /**
@@ -278,10 +281,10 @@ class JsonParseNode implements ParseNode
      * @throws Exception
      */
     public function getDateIntervalValue(): ?DateInterval{
-        return ($this->jsonNode !== null) ? new DateInterval($this->jsonNode) : null;
+        return ($this->jsonNode !== null) ? new DateInterval(strval($this->jsonNode)) : null;
     }
 
     public function getBinaryContent(): ?StreamInterface {
-        return ($this->jsonNode !== null) ? Utils::streamFor($this->jsonNode) : null;
+        return ($this->jsonNode !== null) ? Utils::streamFor(strval($this->jsonNode)) : null;
     }
 }
