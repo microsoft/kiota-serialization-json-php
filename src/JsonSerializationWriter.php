@@ -13,6 +13,7 @@ use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use stdClass;
 
 /**
  * @method onBeforeObjectSerialization(?Parsable $value);
@@ -307,85 +308,51 @@ class JsonSerializationWriter implements SerializationWriter
      * @param mixed $value
      */
     public function writeAnyValue(?string $key, $value): void{
-        $type = get_debug_type($value);
-        switch ($type) {
-            case 'float':
-                if (is_float($value))
-                    $this->writeFloatValue($key, $value);
-                break;
-            case 'string':
-                if (is_string($value))
-                $this->writeStringValue($key, $value);
-                break;
-            case 'int':
-                if (is_int($value))
-                    $this->writeIntegerValue($key, $value);
-                break;
-            case 'bool':
-                if (is_bool($value)) {
-                    $this->writeBooleanValue($key, $value);
-                }
-                break;
-            case 'null':
-                if (is_null($value)) {
-                    $this->writeNullValue($key);
-                }
-                break;
-            case Date::class:
-                if ($value instanceof Date) {
-                    $this->writeDateValue($key, $value);
-                }
-                break;
-            case Time::class:
-                if ($value instanceof Time) {
-                    $this->writeTimeValue($key, $value);
-                }
-                break;
-            case DateTime::class:
-                if ($value instanceof DateTime) {
-                    $this->writeDateTimeValue($key, $value);
-                }
-                break;
-            case DateInterval::class:
-                if ($value instanceof DateInterval) {
-                    $this->writeDateIntervalValue($key, $value);
-                }
-                break;
-            case 'stdClass':
+        if (is_null($value)) {
+            $this->writeNullValue($key);
+        } elseif (is_float($value)) {
+            $this->writeFloatValue($key, $value);
+        } elseif (is_string($value)) {
+            $this->writeStringValue($key, $value);
+        } elseif (is_int($value)) {
+            $this->writeIntegerValue($key, $value);
+        } elseif (is_bool($value)) {
+            $this->writeBooleanValue($key, $value);
+        } elseif ($value instanceof Date) {
+            $this->writeDateValue($key, $value);
+        } elseif ($value instanceof Time) {
+            $this->writeTimeValue($key, $value);
+        } elseif ($value instanceof DateInterval) {
+            $this->writeDateIntervalValue($key, $value);
+        } elseif ($value instanceof DateTime) {
+            $this->writeDateTimeValue($key, $value);
+        } elseif (is_array($value)) {
+            $keys = array_filter(array_keys($value), 'is_string');
+            // If there are string keys then that means this is a single
+            // object we are dealing with
+            // otherwise it is a collection of objects.
+            if (!empty($keys)){
                 $this->writeNonParsableObjectValue($key, (object)$value);
-                break;
-            case 'array':
-                if (is_array($value)) {
-                    $keys = array_filter(array_keys($value), 'is_string');
-                } else {
-                    $keys = [];
+            } elseif (count($value) > 0){
+                if (is_subclass_of($value[0], Parsable::class)) {
+                    $this->writeCollectionOfObjectValues($key, $value);
+                } elseif ($value[0] instanceof Enum) {
+                    $this->writeCollectionOfObjectValues($key, $value);
+                }else{
+                    $this->writeCollectionOfPrimitiveValues($key, $value);
                 }
-                // If there are string keys then that means this is a single
-                // object we are dealing with
-                // otherwise it is a collection of objects.
-                if (!empty($keys)){
-                    $this->writeNonParsableObjectValue($key, (object)$value);
-                } else if (is_array($value) && !empty($value)){
-                    if (is_subclass_of($value[0], Parsable::class)) {
-                        $this->writeCollectionOfObjectValues($key, $value);
-                    } else{
-                        $this->writeCollectionOfPrimitiveValues($key, $value);
-                    }
-                }
-                break;
-            default:
-                if ($value instanceof Parsable) {
-                    $this->writeObjectValue($key, $value);
-                } else if(is_object($value) && is_subclass_of($value, Enum::class)){
-                    $this->writeEnumValue($key, $value);
-                } else if(is_object($value) && is_subclass_of($value, DateTime::class)){
-                    $this->writeDateTimeValue($key, $value);
-                } else if(is_object($value) && (is_a($value, StreamInterface::class) || is_subclass_of($value, StreamInterface::class))) {
-                    $this->writeStringValue($key, $value->getContents());
-                } else {
-                   throw new RuntimeException("Could not serialize the object of type $type");
-                }
-                break;
+            }
+        } elseif ($value instanceof \stdClass) {
+            $this->writeNonParsableObjectValue($key, $value);
+        } elseif ($value instanceof Parsable) {
+                $this->writeObjectValue($key, $value);
+        } elseif($value instanceof Enum) {
+                $this->writeEnumValue($key, $value);
+        } elseif ($value instanceof StreamInterface) {
+            $this->writeStringValue($key, $value->getContents());
+        } else {
+            $type = gettype($value);
+            throw new RuntimeException("Could not serialize the object of type $type ");
         }
     }
 
