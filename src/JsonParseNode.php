@@ -284,6 +284,11 @@ class JsonParseNode implements ParseNode
     }
 
     public function getBinaryContent(): ?StreamInterface {
-        return ($this->jsonNode !== null) ? Utils::streamFor(strval($this->jsonNode)) : null;
+        if (is_null($this->jsonNode)) {
+            return null;
+        } else if (is_array($this->jsonNode)) {
+            return Utils::streamFor(json_encode($this->jsonNode));
+        }
+        return Utils::streamFor(strval($this->jsonNode));
     }
 }
