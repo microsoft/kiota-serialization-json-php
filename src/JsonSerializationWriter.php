@@ -100,7 +100,7 @@ class JsonSerializationWriter implements SerializationWriter
             if (!empty($key)) {
                 $this->writePropertyName($key);
             }
-            $this->writePropertyValue($key, "\"{$value->format(DateTimeInterface::RFC3339)}Z\"");
+            $this->writePropertyValue($key, "\"{$value->format(DateTimeInterface::RFC3339)}\"");
         }
     }
 
