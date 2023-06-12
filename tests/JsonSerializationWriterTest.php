@@ -183,10 +183,10 @@ class JsonSerializationWriterTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testWriteDateTimeOffsetValue(): void {
+    public function testWriteDateTimeValue(): void {
         $this->jsonSerializationWriter = new JsonSerializationWriter();
-        $this->jsonSerializationWriter->writeAnyValue("dateTime", new \DateTime('2018-12-12T12:34:42+00:00Z'));
-        $expected = '"dateTime":"2018-12-12T12:34:42+00:00Z"';
+        $this->jsonSerializationWriter->writeAnyValue("dateTime", new \DateTime('2018-12-12T12:34:42+00:00'));
+        $expected = '"dateTime":"2018-12-12T12:34:42+00:00"';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
     }
