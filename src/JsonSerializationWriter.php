@@ -153,7 +153,7 @@ class JsonSerializationWriter implements SerializationWriter
     /**
      * @inheritDoc
      */
-    public function writeObjectValue(?string $key, $value, Parsable ...$additionalValuesToMerge): void {
+    public function writeObjectValue(?string $key, $value, ?Parsable ...$additionalValuesToMerge): void {
         if ($value !== null || count($additionalValuesToMerge) > 0) {
             if(!empty($key)) {
                 $this->writePropertyName($key);
@@ -169,15 +169,17 @@ class JsonSerializationWriter implements SerializationWriter
                 $value->serialize($this);
             }
             foreach ($additionalValuesToMerge as $additionalValueToMerge) {
-                if ($this->getOnBeforeObjectSerialization() !== null) {
-                    call_user_func($this->getOnBeforeObjectSerialization(), $additionalValueToMerge, $this);
-                }
-                if ($this->getOnStartObjectSerialization() !== null) {
-                    call_user_func($this->getOnStartObjectSerialization(), $additionalValueToMerge, $this);
-                }
-                $additionalValueToMerge->serialize($this);
-                if ($this->getOnAfterObjectSerialization() !== null) {
-                    call_user_func($this->getOnAfterObjectSerialization(), $additionalValueToMerge);
+                if (!is_null($additionalValueToMerge)) {
+                    if ($this->getOnBeforeObjectSerialization() !== null) {
+                        call_user_func($this->getOnBeforeObjectSerialization(), $additionalValueToMerge, $this);
+                    }
+                    if ($this->getOnStartObjectSerialization() !== null) {
+                        call_user_func($this->getOnStartObjectSerialization(), $additionalValueToMerge, $this);
+                    }
+                    $additionalValueToMerge->serialize($this);
+                    if ($this->getOnAfterObjectSerialization() !== null) {
+                        call_user_func($this->getOnAfterObjectSerialization(), $additionalValueToMerge);
+                    }
                 }
             }
             if ($this->writer[count($this->writer) - 1] === ',') {

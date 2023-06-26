@@ -126,6 +126,19 @@ class JsonSerializationWriterTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    public function testWriteIntersectionWrapperObjectValue(): void
+    {
+        $person1 = new Person();
+        $person1->setName("John");
+        $person1->setMaritalStatus(new MaritalStatus('single'));
+        $address = new Address();
+        $address->setCity('Nairobi');
+        $jsonSerializationWriter = new JsonSerializationWriter();
+        $jsonSerializationWriter->writeObjectValue("intersection", $person1, $address, null);
+        $expected = '"intersection":{"name":"John","maritalStatus":"single","city":"Nairobi"}';
+        $this->assertEquals($expected, $jsonSerializationWriter->getSerializedContent()->getContents());
+    }
+
     public function testWriteEnumValue(): void{
         $this->jsonSerializationWriter = new JsonSerializationWriter();
         $this->jsonSerializationWriter->writeAnyValue("status", [new MaritalStatus('married'), new MaritalStatus('single')]);
