@@ -4,6 +4,8 @@ namespace Microsoft\Kiota\Serialization\Tests;
 
 use DateInterval;
 use GuzzleHttp\Psr7\Utils;
+use Microsoft\Kiota\Abstractions\Serialization\Parsable;
+use Microsoft\Kiota\Abstractions\Serialization\ParseNode;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
@@ -124,6 +126,25 @@ class JsonSerializationWriterTest extends TestCase
         $expected = '"to":{"name":"John","maritalStatus":"single","address":{"city":"Nairobi"}}';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
+    }
+
+    public function testWriteIntersectionWrapperObjectValue(): void
+    {
+        $person1 = new Person();
+        $person1->setName("John");
+        $person1->setMaritalStatus(new MaritalStatus('single'));
+        $address = new Address();
+        $address->setCity('Nairobi');
+        $jsonSerializationWriter = new JsonSerializationWriter();
+        $beforeSerialization = fn (Parsable $n) => true;
+        $afterSerialization = fn (Parsable $n) => true;
+        $startSerialization = fn (Parsable $p, SerializationWriter $n) => true;
+        $jsonSerializationWriter->setOnBeforeObjectSerialization($beforeSerialization);
+        $jsonSerializationWriter->setOnAfterObjectSerialization($afterSerialization);
+        $jsonSerializationWriter->setOnStartObjectSerialization($startSerialization);
+        $jsonSerializationWriter->writeObjectValue("intersection", $person1, $address, null);
+        $expected = '"intersection":{"name":"John","maritalStatus":"single","city":"Nairobi"}';
+        $this->assertEquals($expected, $jsonSerializationWriter->getSerializedContent()->getContents());
     }
 
     public function testWriteEnumValue(): void{
