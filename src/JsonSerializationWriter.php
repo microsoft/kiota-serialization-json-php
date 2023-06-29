@@ -151,45 +151,57 @@ class JsonSerializationWriter implements SerializationWriter
     }
 
     /**
+     * Serializes additional object values
+     *
+     * @param array<Parsable|null> $additionalValuesToMerge
+     * @return void
+     */
+    private function writeAdditionalObjectValues(array $additionalValuesToMerge): void {
+        foreach ($additionalValuesToMerge as $additionalValueToMerge) {
+            if (is_null($additionalValueToMerge)) {
+                continue;
+            }
+            if ($this->getOnBeforeObjectSerialization() !== null) {
+                call_user_func($this->getOnBeforeObjectSerialization(), $additionalValueToMerge, $this);
+            }
+            if ($this->getOnStartObjectSerialization() !== null) {
+                call_user_func($this->getOnStartObjectSerialization(), $additionalValueToMerge, $this);
+            }
+            $additionalValueToMerge->serialize($this);
+            if ($this->getOnAfterObjectSerialization() !== null) {
+                call_user_func($this->getOnAfterObjectSerialization(), $additionalValueToMerge);
+            }
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     public function writeObjectValue(?string $key, $value, ?Parsable ...$additionalValuesToMerge): void {
-        if ($value !== null || count($additionalValuesToMerge) > 0) {
-            if(!empty($key)) {
-                $this->writePropertyName($key);
-            }
-            if ($this->getOnBeforeObjectSerialization() !== null) {
-                $this->getOnBeforeObjectSerialization()($value);
-            }
-            $this->writer [] = '{';
-            if ($this->getOnStartObjectSerialization() !== null) {
-                $this->getOnStartObjectSerialization()($value, $this);
-            }
-            if ($value !== null) {
-                $value->serialize($this);
-            }
-            foreach ($additionalValuesToMerge as $additionalValueToMerge) {
-                if (!is_null($additionalValueToMerge)) {
-                    if ($this->getOnBeforeObjectSerialization() !== null) {
-                        call_user_func($this->getOnBeforeObjectSerialization(), $additionalValueToMerge, $this);
-                    }
-                    if ($this->getOnStartObjectSerialization() !== null) {
-                        call_user_func($this->getOnStartObjectSerialization(), $additionalValueToMerge, $this);
-                    }
-                    $additionalValueToMerge->serialize($this);
-                    if ($this->getOnAfterObjectSerialization() !== null) {
-                        call_user_func($this->getOnAfterObjectSerialization(), $additionalValueToMerge);
-                    }
-                }
-            }
-            if ($this->writer[count($this->writer) - 1] === ',') {
-                array_pop($this->writer);
-            }
-            if ($this->getOnAfterObjectSerialization() !== null) {
-                $this->getOnAfterObjectSerialization()($value);
-            }
-            $this->writer [] = '}';
+        if ($value == null && count($additionalValuesToMerge) === 0) {
+            return;
         }
+        if(!empty($key)) {
+            $this->writePropertyName($key);
+        }
+        if ($this->getOnBeforeObjectSerialization() !== null) {
+            $this->getOnBeforeObjectSerialization()($value);
+        }
+        $this->writer [] = '{';
+        if ($this->getOnStartObjectSerialization() !== null) {
+            $this->getOnStartObjectSerialization()($value, $this);
+        }
+        if ($value !== null) {
+            $value->serialize($this);
+        }
+        $this->writeAdditionalObjectValues($additionalValuesToMerge);
+        if ($this->writer[count($this->writer) - 1] === ',') {
+            array_pop($this->writer);
+        }
+        if ($this->getOnAfterObjectSerialization() !== null) {
+            $this->getOnAfterObjectSerialization()($value);
+        }
+        $this->writer [] = '}';
         if ($key !== null && $value !== null) {
             $this->writer [] = self::PROPERTY_SEPARATOR;
         }
