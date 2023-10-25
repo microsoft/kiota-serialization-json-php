@@ -16,7 +16,7 @@
     }
   },
   "require": {
-    "microsoft/kiota-abstractions": "^0.8.0",
+    "microsoft/kiota-abstractions": "dev-fix/promises-generics",
     "guzzlehttp/psr7": "^1.6 || ^2",
     "php": "^7.4 || ^8",
     "ext-json": "*"
