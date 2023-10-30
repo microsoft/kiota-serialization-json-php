@@ -11,13 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-## [0.6.1]
+## [0.7.0] - 2023-10-30
 
 ### Added
-- Adds CHANGELOG.
+- Adds CHANGELOG. [#47](https://github.com/microsoft/kiota-serialization-json-php/pull/47)
 
 ### Changed
-- Disabled PHP-HTTP discovery plugin
+- Disabled PHP-HTTP discovery plugin. [#49](https://github.com/microsoft/kiota-serialization-json-php/pull/49)
+- Bumps Kiota Abstractions dependency version. [#52](https://github.com/microsoft/kiota-serialization-json-php/pull/52)
 
 ## [0.6.0] - 2023-06-29
 
