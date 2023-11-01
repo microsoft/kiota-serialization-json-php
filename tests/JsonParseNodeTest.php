@@ -12,8 +12,6 @@ use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
 use Microsoft\Kiota\Serialization\Json\JsonParseNode;
 use Microsoft\Kiota\Serialization\Json\JsonParseNodeFactory;
-use Microsoft\Kiota\Serialization\Json\JsonSerializationWriter;
-use Microsoft\Kiota\Serialization\Json\JsonSerializationWriterFactory;
 use Microsoft\Kiota\Serialization\Tests\Samples\Address;
 use Microsoft\Kiota\Serialization\Tests\Samples\MaritalStatus;
 use Microsoft\Kiota\Serialization\Tests\Samples\Person;
@@ -36,7 +34,7 @@ class JsonParseNodeTest extends TestCase
     }
 
     public function testGetCollectionOfObjectValues(): void {
-        $str = Utils::streamFor('[{"name": "Silas Kenneth", "age": 98, "height": 123.122, "maritalStatus": "complicated,single"},{"name": "James Bay", "age": 23, "height": 163.122, "maritalStatus": "married"}]');
+        $str = Utils::streamFor('[{"name": "Silas Kenneth", "age": 98, "height": 123.122, "maritalStatus": "complicated,single"},{"name": "James Bay", "age": 23, "height": 163.122, "maritalStatus": "married"}, null]');
         $this->parseNode = (new JsonParseNodeFactory())->getRootParseNode('application/json', $str);
 
         /** @var array<Person> $expected */

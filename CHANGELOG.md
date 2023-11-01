@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [0.8.0] - 2023-11-01
+
+### Changed
+- Return only non-null values within deserialized collections
+- Bumped abstractions
+
 ## [0.7.0] - 2023-10-30
 
 ### Added
