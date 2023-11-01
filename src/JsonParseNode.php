@@ -76,18 +76,19 @@ class JsonParseNode implements ParseNode
     }
 
     /**
-     * @return array<Parsable|null>|null
+     * @inheritDoc
      * @throws Exception
      */
     public function getCollectionOfObjectValues(array $type): ?array {
         if (!is_array($this->jsonNode)) {
             return null;
         }
-        return array_map(static function ($val) use($type) {
+        $result = array_map(static function ($val) use($type) {
             return $val->getObjectValue($type);
         }, array_map(static function ($value) {
             return new JsonParseNode($value);
         }, $this->jsonNode));
+        return array_filter($result, fn ($item) => !is_null($item));
     }
 
     /**
@@ -162,17 +163,18 @@ class JsonParseNode implements ParseNode
     }
 
     /**
-     * @return array<Enum|null>|null
+     * @inheritDoc
      */
     public function getCollectionOfEnumValues(string $targetClass): ?array {
         if (!is_array($this->jsonNode)) {
             return null;
         }
-        return array_map(static function ($val) use($targetClass) {
+        $result = array_map(static function ($val) use($targetClass) {
             return $val->getEnumValue($targetClass);
         }, array_map(static function ($value) {
             return new JsonParseNode($value);
         }, $this->jsonNode));
+        return array_filter($result, fn ($item) => !is_null($item));
     }
 
     /**
