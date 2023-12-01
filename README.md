@@ -1,6 +1,6 @@
 # Kiota JSON Serialization Library for PHP
 
-[![Build Status](https://travis-ci.org/microsoft/kiota-serialization-json-php.svg?branch=main)](https://travis-ci.org/microsoft/kiota-serialization-json-php)
+![Build Status](https://github.com/microsoft/kiota-serialization-json-php/actions/workflows/pr-validation.yml/badge.svg)
 [![Latest Stable Version](https://poser.pugx.org/microsoft/kiota-serialization-json/version)](https://packagist.org/packages/microsoft/kiota-serialization-json)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=microsoft_kiota-serialization-json-php&metric=coverage)](https://sonarcloud.io/dashboard?id=microsoft_kiota-serialization-json-php)
 
@@ -17,7 +17,7 @@ run `composer require microsoft/kiota-serialization-json` or add the following t
 ```Shell
 {
     "require": {
-        "microsoft/kiota-serialization-json": "^0.1.0"
+        "microsoft/kiota-serialization-json": "^1.0.1"
     }
 }
 ```
