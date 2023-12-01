@@ -1,4 +1,4 @@
-name: PHP Serialization JSON
+name: Build
 
 on:
   workflow_dispatch:
