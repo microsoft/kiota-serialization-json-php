@@ -11,9 +11,13 @@
   "license": ["MIT"],
   "autoload": {
     "psr-4": {
-      "Microsoft\\Kiota\\Serialization\\Json\\": "src",
-      "Microsoft\\Kiota\\Serialization\\Tests\\": "tests"
+      "Microsoft\\Kiota\\Serialization\\Json\\": "src"
     }
+  },
+  "autoload-dev": {
+	"psr-4": {
+		"Microsoft\\Kiota\\Serialization\\Tests\\": "tests"
+	}
   },
   "require": {
     "microsoft/kiota-abstractions": "^1.0.2",
