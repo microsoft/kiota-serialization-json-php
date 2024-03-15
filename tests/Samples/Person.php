@@ -6,6 +6,7 @@ use Microsoft\Kiota\Abstractions\Serialization\AdditionalDataHolder;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 use Microsoft\Kiota\Abstractions\Serialization\ParseNode;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
+use Psr\Http\Message\StreamInterface;
 
 class Person implements Parsable, AdditionalDataHolder
 {
@@ -19,6 +20,8 @@ class Person implements Parsable, AdditionalDataHolder
     private ?Address $address = null;
 
     private ?MaritalStatus $maritalStatus = null;
+
+    private ?StreamInterface $bio = null;
     /**
      * @inheritDoc
      */
@@ -30,7 +33,8 @@ class Person implements Parsable, AdditionalDataHolder
             "age" => function (ParseNode $n) use ($currentObject) {$currentObject->setAge($n->getIntegerValue());},
             "height" => function (ParseNode $n) use ($currentObject) {$currentObject->setHeight($n->getFloatValue());},
             "maritalStatus" => function (ParseNode $n) use ($currentObject) {$currentObject->setMaritalStatus($n->getEnumValue(MaritalStatus::class));},
-            "address" => function (ParseNode $n) use ($currentObject) {$currentObject->setAddress($n->getObjectValue(array(Address::class, 'createFromDiscriminatorValue')));}
+            "address" => function (ParseNode $n) use ($currentObject) {$currentObject->setAddress($n->getObjectValue(array(Address::class, 'createFromDiscriminatorValue')));},
+            "bio" => function (ParseNode $n) use ($currentObject) {$currentObject->setBio($n->getBinaryContent());}
         ];
     }
 
@@ -43,6 +47,7 @@ class Person implements Parsable, AdditionalDataHolder
         $writer->writeEnumValue('maritalStatus', $this->maritalStatus);
         $writer->writeFloatValue('height', $this->height);
         $writer->writeObjectValue('address', $this->address);
+        $writer->writeBinaryContent('bio', $this->bio);
     }
 
     /**
@@ -131,6 +136,22 @@ class Person implements Parsable, AdditionalDataHolder
      */
     public function setAddress(?Address $address): void {
         $this->address = $address;
+    }
+
+    /**
+     * @param StreamInterface|null $bio
+     */
+    public function setBio(?StreamInterface $bio): void
+    {
+        $this->bio = $bio;
+    }
+
+    /**
+     * @return StreamInterface|null
+     */
+    public function getBio(): ?StreamInterface
+    {
+        return $this->bio;
     }
 
 }
