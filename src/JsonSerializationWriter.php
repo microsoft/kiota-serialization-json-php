@@ -123,7 +123,9 @@ class JsonSerializationWriter implements SerializationWriter
             if (!empty($key)) {
                 $this->writePropertyName($key);
             }
-            $this->writePropertyValue($key, "\"{$value->getContents()}\"");
+            $val = $value->getContents();
+            $value->rewind();
+            $this->writePropertyValue($key, "\"$val\"");
         }
     }
 
