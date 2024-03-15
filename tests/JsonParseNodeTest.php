@@ -12,8 +12,6 @@ use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
 use Microsoft\Kiota\Serialization\Json\JsonParseNode;
 use Microsoft\Kiota\Serialization\Json\JsonParseNodeFactory;
-use Microsoft\Kiota\Serialization\Json\JsonSerializationWriter;
-use Microsoft\Kiota\Serialization\Json\JsonSerializationWriterFactory;
 use Microsoft\Kiota\Serialization\Tests\Samples\Address;
 use Microsoft\Kiota\Serialization\Tests\Samples\MaritalStatus;
 use Microsoft\Kiota\Serialization\Tests\Samples\Person;
@@ -26,7 +24,7 @@ class JsonParseNodeTest extends TestCase
     private StreamInterface $stream;
 
     protected function setUp(): void {
-        $this->stream = Utils::streamFor('{"@odata.type":"Missing", "name": "Silas Kenneth", "age": 98, "height": 123.122, "maritalStatus": "complicated,single", "address": {"city": "Nairobi", "street": "Luthuli"}}');
+        $this->stream = Utils::streamFor('{"@odata.type":"Missing","name":"Silas Kenneth","age":98,"height":123.122,"maritalStatus":"complicated,single","address":{"city":"Nairobi","street":"Luthuli"}}');
     }
 
     public function testGetIntegerValue(): void {
@@ -36,7 +34,7 @@ class JsonParseNodeTest extends TestCase
     }
 
     public function testGetCollectionOfObjectValues(): void {
-        $str = Utils::streamFor('[{"name": "Silas Kenneth", "age": 98, "height": 123.122, "maritalStatus": "complicated,single"},{"name": "James Bay", "age": 23, "height": 163.122, "maritalStatus": "married"}]');
+        $str = Utils::streamFor('[{"name": "Silas Kenneth", "age": 98, "height": 123.122, "maritalStatus": "complicated,single"},{"name": "James Bay", "age": 23, "height": 163.122, "maritalStatus": "married"}, null]');
         $this->parseNode = (new JsonParseNodeFactory())->getRootParseNode('application/json', $str);
 
         /** @var array<Person> $expected */
@@ -174,5 +172,16 @@ class JsonParseNodeTest extends TestCase
         $this->parseNode->setOnAfterAssignFieldValues($onAfterAssignValues);
         $person = $this->parseNode->getObjectValue([Person::class, 'createFromDiscriminatorValue']);
         $this->assertTrue($assigned);
+    }
+
+    public function testGetBinaryContent(): void {
+        $this->parseNode = new JsonParseNode(100);
+        $this->assertEquals("100", $this->parseNode->getBinaryContent()->getContents());
+    }
+
+    public function testGetBinaryContentFromArray(): void {
+        $this->parseNode = new JsonParseNode(json_decode($this->stream->getContents(), true));
+        $this->stream->rewind();
+        $this->assertEquals($this->stream->getContents(), $this->parseNode->getBinaryContent()->getContents());
     }
 }

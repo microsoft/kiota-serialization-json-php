@@ -2,6 +2,10 @@
 
 namespace Microsoft\Kiota\Serialization\Tests;
 
+use DateInterval;
+use GuzzleHttp\Psr7\Utils;
+use Microsoft\Kiota\Abstractions\Serialization\Parsable;
+use Microsoft\Kiota\Abstractions\Serialization\ParseNode;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
@@ -39,7 +43,7 @@ class JsonSerializationWriterTest extends TestCase
     public function testWriteDateOnlyValue(): void {
         $this->jsonSerializationWriter = new JsonSerializationWriter();
         $date = Date::createFrom(2012, 12, 3);
-        $this->jsonSerializationWriter->writeDateValue("date", $date);
+        $this->jsonSerializationWriter->writeAnyValue("date", $date);
         $expected = '"date":"2012-12-03"';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
@@ -70,7 +74,7 @@ class JsonSerializationWriterTest extends TestCase
 
     public function testWriteFloatValue(): void{
         $this->jsonSerializationWriter = new JsonSerializationWriter();
-        $this->jsonSerializationWriter->writeFloatValue("height", 12.394);
+        $this->jsonSerializationWriter->writeAnyValue("height", 12.394);
         $expected = '"height":12.394';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
@@ -88,7 +92,7 @@ class JsonSerializationWriterTest extends TestCase
 
     public function testWriteNullValue(): void{
         $this->jsonSerializationWriter = new JsonSerializationWriter();
-        $this->jsonSerializationWriter->writeNullValue("nextPage");
+        $this->jsonSerializationWriter->writeAnyValue("nextPage", null);
         $expected = '"nextPage":null';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
@@ -124,10 +128,29 @@ class JsonSerializationWriterTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    public function testWriteIntersectionWrapperObjectValue(): void
+    {
+        $person1 = new Person();
+        $person1->setName("John");
+        $person1->setMaritalStatus(new MaritalStatus('single'));
+        $address = new Address();
+        $address->setCity('Nairobi');
+        $jsonSerializationWriter = new JsonSerializationWriter();
+        $beforeSerialization = fn (Parsable $n) => true;
+        $afterSerialization = fn (Parsable $n) => true;
+        $startSerialization = fn (Parsable $p, SerializationWriter $n) => true;
+        $jsonSerializationWriter->setOnBeforeObjectSerialization($beforeSerialization);
+        $jsonSerializationWriter->setOnAfterObjectSerialization($afterSerialization);
+        $jsonSerializationWriter->setOnStartObjectSerialization($startSerialization);
+        $jsonSerializationWriter->writeObjectValue("intersection", $person1, $address, null);
+        $expected = '"intersection":{"name":"John","maritalStatus":"single","city":"Nairobi"}';
+        $this->assertEquals($expected, $jsonSerializationWriter->getSerializedContent()->getContents());
+    }
+
     public function testWriteEnumValue(): void{
         $this->jsonSerializationWriter = new JsonSerializationWriter();
-        $this->jsonSerializationWriter->writeEnumValue("status", new MaritalStatus('married'));
-        $expected = '"status":"married"';
+        $this->jsonSerializationWriter->writeAnyValue("status", [new MaritalStatus('married'), new MaritalStatus('single')]);
+        $expected = '"status":["married","single"]';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
     }
@@ -146,7 +169,7 @@ class JsonSerializationWriterTest extends TestCase
      */
     public function testWriteNonParsableObjectValue(): void{
         $this->jsonSerializationWriter = new JsonSerializationWriter();
-        $this->jsonSerializationWriter->writeAnyValue("times", [
+        $this->jsonSerializationWriter->writeAnyValue("times", (object)[
             "start" => Time::createFrom(12,0, 23),
             "end" => Time::createFrom(13, 45, 12)]);
         $expected = '"times":{"start":"12:00:23","end":"13:45:12"}';
@@ -181,10 +204,10 @@ class JsonSerializationWriterTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testWriteDateTimeOffsetValue(): void {
+    public function testWriteDateTimeValue(): void {
         $this->jsonSerializationWriter = new JsonSerializationWriter();
-        $this->jsonSerializationWriter->writeAnyValue("dateTime", new \DateTime('2018-12-12T12:34:42+00:00Z'));
-        $expected = '"dateTime":"2018-12-12T12:34:42+00:00Z"';
+        $this->jsonSerializationWriter->writeAnyValue("dateTime", new \DateTime('2018-12-12T12:34:42+00:00'));
+        $expected = '"dateTime":"2018-12-12T12:34:42+00:00"';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
     }
@@ -205,5 +228,28 @@ class JsonSerializationWriterTest extends TestCase
         $expected = '"statement":"This is a string\\n\\r\\t"';
         $actual = $this->jsonSerializationWriter->getSerializedContent()->getContents();
         $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testWriteDateIntervalValue(): void
+    {
+        $this->jsonSerializationWriter = new JsonSerializationWriter();
+        $interval = new DateInterval('P300DT100S');
+        $this->jsonSerializationWriter->writeAnyValue('timeTaken', $interval);
+
+        $content = $this->jsonSerializationWriter->getSerializedContent();
+        $this->assertEquals('"timeTaken":"P0Y0M300DT0H0M100S"', $content->getContents());
+    }
+
+    public function testWriteBinaryContentValue(): void
+    {
+        $this->jsonSerializationWriter = new JsonSerializationWriter();
+        $stream = Utils::streamFor("Hello world!!!\r\t\t\t\n");
+        $this->jsonSerializationWriter->writeBinaryContent('body', $stream);
+        $this->jsonSerializationWriter->writeAnyValue('body3', $stream);
+        $content = $this->jsonSerializationWriter->getSerializedContent();
+        $this->assertEquals("\"body\":\"Hello world!!!\\r\\t\\t\\t\\n\",\"body3\":\"Hello world!!!\\r\\t\\t\\t\\n\"", $content->getContents());
     }
 }
