@@ -121,9 +121,9 @@ class JsonSerializationWriter implements SerializationWriter
 
     public function writeBinaryContent(?string $key, ?StreamInterface $value): void {
         if ($value !== null) {
-            $this->writeStringValue($key, $value->getContents());
-        } else {
-            $this->writeNullValue($key);
+            $val = $value->getContents();
+            $value->rewind();
+            $this->writeStringValue($key, $val);
         }
     }
 

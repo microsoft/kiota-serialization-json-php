@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [ main, dev ]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,7 +19,7 @@ jobs:
         php-versions: ['7.4', '8.0', '8.1', '8.2']
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
       - name: Setup PHP and Xdebug for Code Coverage report
         uses: shivammathur/setup-php@v2
         with:

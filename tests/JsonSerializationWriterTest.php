@@ -248,10 +248,8 @@ class JsonSerializationWriterTest extends TestCase
         $this->jsonSerializationWriter = new JsonSerializationWriter();
         $stream = Utils::streamFor("Hello world!!!\r\t\t\t\n");
         $this->jsonSerializationWriter->writeBinaryContent('body', $stream);
-        $stream->rewind();
         $this->jsonSerializationWriter->writeAnyValue('body3', $stream);
-        $this->jsonSerializationWriter->writeBinaryContent('body2', null);
         $content = $this->jsonSerializationWriter->getSerializedContent();
-        $this->assertEquals("\"body\":\"Hello world!!!\\r\\t\\t\\t\\n\",\"body3\":\"Hello world!!!\\r\\t\\t\\t\\n\",\"body2\":null", $content->getContents());
+        $this->assertEquals("\"body\":\"Hello world!!!\\r\\t\\t\\t\\n\",\"body3\":\"Hello world!!!\\r\\t\\t\\t\\n\"", $content->getContents());
     }
 }
