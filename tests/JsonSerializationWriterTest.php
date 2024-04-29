@@ -240,7 +240,17 @@ class JsonSerializationWriterTest extends TestCase
         $this->jsonSerializationWriter->writeAnyValue('timeTaken', $interval);
 
         $content = $this->jsonSerializationWriter->getSerializedContent();
-        $this->assertEquals('"timeTaken":"P0Y0M300DT0H0M100S"', $content->getContents());
+        $this->assertEquals('"timeTaken":"P300DT100S"', $content->getContents());
+    }
+
+    public function testWriteNegativeDateIntervalValue(): void
+    {
+        $this->jsonSerializationWriter = new JsonSerializationWriter();
+        $interval = new DateInterval('P1DT6H7M7S');
+        $interval->invert = 1;
+        $this->jsonSerializationWriter->writeAnyValue('timeTaken', $interval);
+        $content = $this->jsonSerializationWriter->getSerializedContent();
+        $this->assertEquals('"timeTaken":"-P1DT6H7M7S"', $content->getContents());
     }
 
     public function testWriteBinaryContentValue(): void

@@ -452,7 +452,13 @@ class JsonSerializationWriter implements SerializationWriter
             if (!empty($key)) {
                 $this->writePropertyName($key);
             }
-            $res = "P{$value->y}Y{$value->y}M{$value->d}DT{$value->h}H{$value->i}M{$value->s}S";
+            $year = $value->y > 0 ? "%yY" : "";
+            $month = $value->m > 0 ? "%mM" : "";
+            $day = $value->d > 0 ? '%dD' : "";
+            $hour = $value->h > 0 ? '%hH' : "";
+            $minute = $value->i > 0 ? '%iM' : "";
+            $second = $value->s > 0 ? '%sS' : "";
+            $res = $value->format("%rP$year$month{$day}T{$hour}{$minute}{$second}");
             $val = "\"$res\"" ;
             $this->writePropertyValue($key, $val);
         }
