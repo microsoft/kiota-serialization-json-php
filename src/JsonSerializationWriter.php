@@ -4,7 +4,6 @@ namespace Microsoft\Kiota\Serialization\Json;
 
 use DateInterval;
 use DateTime;
-use DateTimeInterface;
 use GuzzleHttp\Psr7\Utils;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Enum;
