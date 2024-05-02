@@ -22,7 +22,7 @@ use Psr\Http\Message\StreamInterface;
  */
 class JsonParseNode implements ParseNode
 {
-    use ParseNodeFromStringTrait {parseDateIntervalFromString as public;}
+    use ParseNodeFromStringTrait;
 
     /** @var mixed|null $jsonNode*/
     private $jsonNode;
