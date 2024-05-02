@@ -179,7 +179,7 @@ class JsonParseNodeTest extends TestCase
         $this->parseNode = new JsonParseNode(100);
         $this->assertEquals("100", $this->parseNode->getBinaryContent()->getContents());
     }
-    
+
     public function testGetBinaryContentFromArray(): void {
         $this->parseNode = new JsonParseNode(json_decode($this->stream->getContents(), true));
         $this->stream->rewind();

@@ -22,7 +22,12 @@ use stdClass;
  */
 class JsonSerializationWriter implements SerializationWriter
 {
-    use SerializationWriterToStringTrait;
+    use SerializationWriterToStringTrait {
+        getStringValueAsEscapedString as private;
+        getBooleanValueAsString as private;
+        getDateIntervalValueAsString as private;
+        getDateTimeValueAsString as private;
+    }
 
     /** @var array<mixed> $writer */
     private array $writer = [];
