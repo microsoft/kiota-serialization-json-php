@@ -4,12 +4,12 @@ namespace Microsoft\Kiota\Serialization\Json;
 
 use DateInterval;
 use DateTime;
-use DateTimeInterface;
 use GuzzleHttp\Psr7\Utils;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Enum;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
+use Microsoft\Kiota\Abstractions\Serialization\SerializationWriterToStringTrait;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
 use Psr\Http\Message\StreamInterface;
@@ -22,6 +22,8 @@ use stdClass;
  */
 class JsonSerializationWriter implements SerializationWriter
 {
+    use SerializationWriterToStringTrait;
+
     /** @var array<mixed> $writer */
     private array $writer = [];
 
@@ -45,13 +47,11 @@ class JsonSerializationWriter implements SerializationWriter
      * @inheritDoc
      */
     public function writeStringValue(?string $key, ?string $value): void {
-
-        $propertyValue = $value !== null ? '"'.addcslashes($value, "\\\r\n\"\t").'"' : '';
         if ($value !== null) {
             if (!empty($key)) {
                 $this->writePropertyName($key);
             }
-            $this->writePropertyValue($key, $propertyValue);
+            $this->writePropertyValue($key, "\"{$this->getStringValueAsEscapedString($value)}\"");
         }
     }
 
@@ -63,8 +63,7 @@ class JsonSerializationWriter implements SerializationWriter
             if (!empty($key)) {
                 $this->writePropertyName($key);
             }
-            $options = ['false', 'true'];
-            $this->writePropertyValue($key, $options[$value]);
+            $this->writePropertyValue($key, $this->getBooleanValueAsString($value));
         }
     }
 
@@ -100,7 +99,7 @@ class JsonSerializationWriter implements SerializationWriter
             if (!empty($key)) {
                 $this->writePropertyName($key);
             }
-            $this->writePropertyValue($key, "\"{$value->format(DateTimeInterface::RFC3339)}\"");
+            $this->writePropertyValue($key, "\"{$this->getDateTimeValueAsString($value)}\"");
         }
     }
 
@@ -452,9 +451,7 @@ class JsonSerializationWriter implements SerializationWriter
             if (!empty($key)) {
                 $this->writePropertyName($key);
             }
-            $res = "P{$value->y}Y{$value->y}M{$value->d}DT{$value->h}H{$value->i}M{$value->s}S";
-            $val = "\"$res\"" ;
-            $this->writePropertyValue($key, $val);
+            $this->writePropertyValue($key, "\"{$this->getDateIntervalValueAsString($value)}\"");
         }
     }
 }

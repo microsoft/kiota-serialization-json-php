@@ -11,10 +11,10 @@ use Microsoft\Kiota\Abstractions\Enum;
 use Microsoft\Kiota\Abstractions\Serialization\AdditionalDataHolder;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 use Microsoft\Kiota\Abstractions\Serialization\ParseNode;
+use Microsoft\Kiota\Abstractions\Serialization\ParseNodeFromStringTrait;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
 use Psr\Http\Message\StreamInterface;
-use RuntimeException;
 
 /**
  * @method onBeforeAssignFieldValues(Parsable $result)
@@ -22,6 +22,8 @@ use RuntimeException;
  */
 class JsonParseNode implements ParseNode
 {
+    use ParseNodeFromStringTrait;
+
     /** @var mixed|null $jsonNode*/
     private $jsonNode;
 
@@ -282,7 +284,10 @@ class JsonParseNode implements ParseNode
      * @throws Exception
      */
     public function getDateIntervalValue(): ?DateInterval{
-        return ($this->jsonNode !== null) ? new DateInterval(strval($this->jsonNode)) : null;
+        if ($this->jsonNode === null){
+            return null;
+        }
+        return $this->parseDateIntervalFromString(strval($this->jsonNode));
     }
 
     public function getBinaryContent(): ?StreamInterface {
