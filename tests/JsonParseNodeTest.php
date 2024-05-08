@@ -2,6 +2,7 @@
 
 namespace Microsoft\Kiota\Serialization\Tests;
 
+use DateInterval;
 use DateTime;
 use DateTimeInterface;
 use Exception;
@@ -183,5 +184,16 @@ class JsonParseNodeTest extends TestCase
         $this->parseNode = new JsonParseNode(json_decode($this->stream->getContents(), true));
         $this->stream->rewind();
         $this->assertEquals($this->stream->getContents(), $this->parseNode->getBinaryContent()->getContents());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetNegativeDateInterval(): void
+    {
+        $this->parseNode = new JsonParseNode('-P1D');
+        $expected = new DateInterval('P1D');
+        $expected->invert = 1;
+        $this->assertEquals($this->parseNode->getDateIntervalValue(), $expected);
     }
 }
