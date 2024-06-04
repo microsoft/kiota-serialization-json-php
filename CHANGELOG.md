@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - fix(logic): Don't cast types since this might introduce some logical bugs. Make sure values match possible values for that type.
+- fix(serialization): Fix how composed types are handled.
 
 ## [1.0.1]
 
