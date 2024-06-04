@@ -29,9 +29,11 @@ class JsonParseNodeTest extends TestCase
     }
 
     public function testGetIntegerValue(): void {
-        $this->parseNode = new JsonParseNode('1243.78');
+        $this->parseNode = new JsonParseNode(1243.78);
         $expected = $this->parseNode->getIntegerValue();
-        $this->assertEquals(1243, $expected);
+        $this->assertEquals(null, $expected);
+        $this->parseNode = new JsonParseNode(1243);
+        $this->assertEquals(1243, $this->parseNode->getIntegerValue());
     }
 
     public function testGetCollectionOfObjectValues(): void {
@@ -61,7 +63,7 @@ class JsonParseNodeTest extends TestCase
     }
 
     public function testGetFloatValue(): void {
-        $this->parseNode = new JsonParseNode('1243.12');
+        $this->parseNode = new JsonParseNode(1243.12);
         $expected = $this->parseNode->getFloatValue();
         $this->assertEquals(1243.12, $expected);
     }

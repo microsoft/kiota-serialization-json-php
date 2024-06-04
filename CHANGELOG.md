@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.3.0]
+
+### Added
+
+### Changed
+- fix(logic): Don't cast types since this might introduce some logical bugs. Make sure values match possible values for that type.
+
 ## [1.0.1]
 
 ### Changed
