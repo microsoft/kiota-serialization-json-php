@@ -14,6 +14,7 @@ use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
 use Psr\Http\Message\StreamInterface;
 use stdClass;
+use Microsoft\Kiota\Abstractions\Serialization\ComposedTypeWrapper;
 
 /**
  * @method onBeforeObjectSerialization(?Parsable $value);
@@ -186,7 +187,11 @@ class JsonSerializationWriter implements SerializationWriter
         if ($this->getOnBeforeObjectSerialization() !== null) {
             $this->getOnBeforeObjectSerialization()($value);
         }
-        $this->writer [] = '{';
+        $isComposedType = $value instanceof ComposedTypeWrapper;
+
+        if (!$isComposedType) {
+            $this->writer [] = '{';
+        }
         if ($this->getOnStartObjectSerialization() !== null) {
             $this->getOnStartObjectSerialization()($value, $this);
         }
@@ -200,7 +205,9 @@ class JsonSerializationWriter implements SerializationWriter
         if ($this->getOnAfterObjectSerialization() !== null) {
             $this->getOnAfterObjectSerialization()($value);
         }
-        $this->writer [] = '}';
+        if (!$isComposedType) {
+            $this->writer [] = '}';
+        }
         if ($key !== null && $value !== null) {
             $this->writer [] = self::PROPERTY_SEPARATOR;
         }

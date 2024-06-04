@@ -4,6 +4,7 @@ namespace Microsoft\Kiota\Serialization\Tests;
 
 use DateInterval;
 use GuzzleHttp\Psr7\Utils;
+use Microsoft\Kiota\Abstractions\Serialization\ComposedTypeWrapper;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 use Microsoft\Kiota\Abstractions\Serialization\ParseNode;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
@@ -261,5 +262,54 @@ class JsonSerializationWriterTest extends TestCase
         $this->jsonSerializationWriter->writeAnyValue('body3', $stream);
         $content = $this->jsonSerializationWriter->getSerializedContent();
         $this->assertEquals("\"body\":\"Hello world!!!\\r\\t\\t\\t\\n\",\"body3\":\"Hello world!!!\\r\\t\\t\\t\\n\"", $content->getContents());
+    }
+
+    public function testWriteObjectValueForComposedTypes(): void
+    {
+        $this->jsonSerializationWriter = new JsonSerializationWriter();
+
+        $obj = new class implements Parsable, ComposedTypeWrapper {
+            public function getString(): ?string {return null;}
+            public function getBoolean(): ?bool { return null;}
+            public function getInteger(): ?int { return null;}
+            public function setBoolean(?bool $value): void {}
+            public function setInteger(?int $value): void {}
+            public function setString(?string $value): void {}
+            public function setDouble(?float $value): void {}
+            public function getDouble(): ?float {return 26.6;}
+            public function getFieldDeserializers(): array { return [];}
+            public function serialize(SerializationWriter $writer): void
+            {
+                if ($this->getInteger() !== null) {
+                    $writer->writeIntegerValue(null, $this->getInteger());
+                } elseif ($this->getBoolean() !== null) {
+                    $writer->writeBooleanValue(null, $this->getBoolean());
+                } elseif ($this->getString() !== null) {
+                    $writer->writeStringValue(null, $this->getString());
+                } else if ($this->getDouble() !== null) {
+                    $writer->writeFloatValue(null, $this->getDouble());
+                }
+            }
+
+            public function createFromDiscriminator(ParseNode $parseNode): self {
+                $result = new $this();
+                if ($parseNode->getBooleanValue() !== null) {
+                    $result->setBoolean($parseNode->getBooleanValue());
+                } else if ($parseNode->getFloatValue() !== null) {
+                    $result->setDouble($parseNode->getFloatValue());
+                } else if ($parseNode->getIntegerValue() !== null) {
+                    $result->setInteger($parseNode->getIntegerValue());
+                } else if ($parseNode->getStringValue() !== null) {
+                    $result->setString($parseNode->getStringValue());
+                }
+                return $result;
+            }
+
+        };
+
+        $this->jsonSerializationWriter->writeObjectValue(null, $obj);
+
+        $dd = $this->jsonSerializationWriter->getSerializedContent()->getContents();
+        $this->assertEquals('26.6', $dd);
     }
 }

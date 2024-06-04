@@ -17,7 +17,7 @@ run `composer require microsoft/kiota-serialization-json` or add the following t
 ```Shell
 {
     "require": {
-        "microsoft/kiota-serialization-json": "^1.0.1"
+        "microsoft/kiota-serialization-json": "^1.3.0"
     }
 }
 ```

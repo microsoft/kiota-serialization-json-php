@@ -53,28 +53,28 @@ class JsonParseNode implements ParseNode
      * @inheritDoc
      */
     public function getStringValue(): ?string {
-        return $this->jsonNode !== null ? addcslashes(strval($this->jsonNode), "\\\r\n") : null;
+        return is_string($this->jsonNode) ? addcslashes($this->jsonNode, "\\\r\n") : null;
     }
 
     /**
      * @inheritDoc
      */
     public function getBooleanValue(): ?bool {
-        return $this->jsonNode !== null ? (bool)$this->jsonNode : null;
+        return is_bool($this->jsonNode) ? $this->jsonNode : null;
     }
 
     /**
      * @inheritDoc
      */
     public function getIntegerValue(): ?int {
-        return $this->jsonNode !== null ? intval($this->jsonNode) : null;
+        return is_int($this->jsonNode) ? $this->jsonNode : null;
     }
 
     /**
      * @inheritDoc
      */
     public function getFloatValue(): ?float {
-        return $this->jsonNode !== null ? floatval($this->jsonNode) : null;
+        return is_float($this->jsonNode) ? $this->jsonNode : null;
     }
 
     /**
