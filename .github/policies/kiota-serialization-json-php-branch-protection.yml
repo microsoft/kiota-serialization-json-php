@@ -8,7 +8,6 @@ configuration:
   branchProtectionRules:
 
   - branchNamePattern: main
-
     # Specifies whether this branch can be deleted. boolean
     allowsDeletions: false
     # Specifies whether forced pushes are allowed on this branch. boolean
