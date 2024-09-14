@@ -74,7 +74,7 @@ class JsonParseNode implements ParseNode
      * @inheritDoc
      */
     public function getFloatValue(): ?float {
-        return is_float($this->jsonNode) ? $this->jsonNode : null;
+        return is_float($this->jsonNode) || is_int($this->jsonNode) ? floatval($this->jsonNode) : null;
     }
 
     /**
