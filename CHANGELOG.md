@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.3.1]
+
+### Added
+
+### Changed
+- fix(serialization): Float serialization also accepts integer values. [#85](https://github.com/microsoft/kiota-serialization-json-php/pull/85)
+
 ## [1.3.0]
 
 ### Added
