@@ -62,10 +62,16 @@ class JsonParseNodeTest extends TestCase
         $this->assertEquals(123.122, $expected->getHeight());
     }
 
-    public function testGetFloatValue(): void {
+    public function testGetFloatValueWithFloat(): void {
         $this->parseNode = new JsonParseNode(1243.12);
         $expected = $this->parseNode->getFloatValue();
         $this->assertEquals(1243.12, $expected);
+    }
+
+    public function testGetFloatValueWithInt(): void {
+        $this->parseNode = new JsonParseNode(1243);
+        $expected = $this->parseNode->getFloatValue();
+        $this->assertEquals(1243.00, $expected);
     }
 
     /**
